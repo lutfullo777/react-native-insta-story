@@ -6,7 +6,8 @@ import {
     SafeAreaView, StyleSheet, Text,
     TouchableOpacity,
     TouchableWithoutFeedback,
-    View
+    View,
+    StatusBar
 } from "react-native";
 import { Path, Svg } from "react-native-svg";
 import GestureRecognizer from 'react-native-swipe-gestures';
@@ -190,6 +191,7 @@ export const StoryListItem = (props: Props) => {
                 backgroundColor: 'black'
             }}
         >
+            <StatusBar backgroundColor={"black"} />
             <SafeAreaView>
                 <View style={styles.backgroundContainer}>
                     {load && <View style={styles.spinnerContainer}>
@@ -202,7 +204,7 @@ export const StoryListItem = (props: Props) => {
                                 rate={1.0}
                                 volume={1.0}
                                 paused={pressed}
-                                resizeMode="content"
+                                resizeMode="contain"
                                 playInBackground={false}
                                 onLoadStart={() => {
                                     setLoad(true);
