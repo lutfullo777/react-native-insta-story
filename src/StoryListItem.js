@@ -1,22 +1,19 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
-    Animated,
-    Image,
-    Text,
-    TouchableOpacity,
-    StyleSheet,
-    Dimensions,
-    TouchableWithoutFeedback,
-    ActivityIndicator,
-    View,
+    ActivityIndicator, Animated,
+    Dimensions, Image,
     Platform,
-    SafeAreaView
+    SafeAreaView, StyleSheet, Text,
+    TouchableOpacity,
+    TouchableWithoutFeedback,
+    View
 } from "react-native";
-import type { IUserStoryItem } from "./interfaces/IUserStory";
-import { usePrevious } from "./helpers/StateHelpers";
-import { isNullOrWhitespace } from "./helpers/ValidationHelpers";
+import { Path, Svg } from "react-native-svg";
 import GestureRecognizer from 'react-native-swipe-gestures';
 import Video from 'react-native-video';
+import { usePrevious } from "./helpers/StateHelpers";
+import { isNullOrWhitespace } from "./helpers/ValidationHelpers";
+import type { IUserStoryItem } from "./interfaces/IUserStory";
 
 const { width, height } = Dimensions.get('window');
 
@@ -100,7 +97,7 @@ export const StoryListItem = (props: Props) => {
     }, [current]);
 
     function start(dr = props.duration) {
-        console.log("SENT START");
+        // console.log("SENT START");
 
         setLoad(false);
         progress.setValue(0);
@@ -108,7 +105,7 @@ export const StoryListItem = (props: Props) => {
     }
 
     function startAnimation(dr) {
-        console.log("ANIM", dr);
+        // console.log("ANIM", dr);
 
         Animated.timing(progress, {
             toValue: 1,
@@ -199,43 +196,40 @@ export const StoryListItem = (props: Props) => {
                         <ActivityIndicator size="large" color={'white'} />
                     </View>}
                     {
-                        content[current].type == "video" ? (<Video
-                            source={{ uri: content[current].media }}
-                            rate={1.0}
-                            volume={1.0}
-                            paused={pressed}
-                            resizeMode="cover"
-                            playInBackground={false}
-                            onLoadStart={() => {
-                                setLoad(true);
-                                progress.setValue(0);
-                            }}
-                            onLoad={(vidData) => {
-                                if (vidData.duration !== undefined) {
-                                    var duration = Math.round(vidData["duration"]) * 1000;
-                                    if (duration > props.duration) {
-                                        duration = props.duration;
+                        content[current].type == "video" ? (
+                            <Video
+                                source={{ uri: content[current].media }}
+                                rate={1.0}
+                                volume={1.0}
+                                paused={pressed}
+                                resizeMode="content"
+                                playInBackground={false}
+                                onLoadStart={() => {
+                                    setLoad(true);
+                                    progress.setValue(0);
+                                }}
+                                onLoad={(vidData) => {
+                                    if (vidData.duration !== undefined) {
+                                        var duration = Math.round(vidData["duration"]) * 1000;
+                                        if (duration > props.duration) {
+                                            duration = props.duration;
+                                        }
+
+                                        baseDuration = duration;
+                                        start(duration);
+                                    } else {
+                                        start(props.duration);
                                     }
+                                }}
 
-                                    baseDuration = duration;
-                                    start(duration);
-                                } else {
-                                    start(props.duration);
-                                }
-                            }}
-
-                            style={{
-                                width: width,
-                                height: height,
-                            }}
-                        >
-                            {load && <View style={styles.videoSpinnerContainer}>
-                                <ActivityIndicator size="large" color={'white'} />
-                            </View>}
-                        </Video>) : (<Image onLoadEnd={() => start(props.duration)}
-                            source={{ uri: content[current].media }}
-                            style={styles.image}
-                        />)
+                                style={{
+                                    width: width,
+                                    height: height,
+                                }}
+                            />) : (<Image onLoadEnd={() => start(props.duration)}
+                                source={{ uri: content[current].media }}
+                                style={styles.image}
+                            />)
                     }
                 </View>
             </SafeAreaView>
@@ -270,7 +264,10 @@ export const StoryListItem = (props: Props) => {
                         <View style={styles.closeIconContainer}>
                             {props.customCloseComponent ?
                                 props.customCloseComponent :
-                                <Text style={{ color: 'white' }}>X</Text>
+                                <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
+                                    <Path d="M18 6L6 18" stroke={"white"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                    <Path d="M6 6L18 18" stroke={"white"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                </Svg>
                             }
                         </View>
                     </TouchableOpacity>
@@ -359,6 +356,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         paddingTop: 10,
         paddingHorizontal: 10,
+        backgroundColor: "rgba(84, 84, 84, 0.2)",
     },
     animationBackground: {
         height: 2,
@@ -368,10 +366,11 @@ const styles = StyleSheet.create({
         marginHorizontal: 2,
     },
     userContainer: {
-        height: 50,
+        height: 45,
         flexDirection: 'row',
         justifyContent: 'space-between',
         paddingHorizontal: 15,
+        backgroundColor: "rgba(84, 84, 84, 0.2)",
     },
     avatarImage: {
         height: 30,

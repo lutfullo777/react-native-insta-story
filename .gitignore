@@ -40,6 +40,9 @@ build/
 local.properties
 *.iml
 
+# VS Code
+.vscode
+
 # BUCK
 buck-out/
 \.buckd/

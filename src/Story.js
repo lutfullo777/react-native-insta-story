@@ -42,7 +42,7 @@ export const Story = (props: Props) => {
         avatarTextStyle
     } = props;
 
-    const [dataState, setDataState] = useState(data);
+    // const [dataState, setDataState] = useState(data);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentPage, setCurrentPage] = useState(0);
     const [selectedData, setSelectedData] = useState([]);
@@ -50,7 +50,7 @@ export const Story = (props: Props) => {
 
     // Component Functions
     const _handleStoryItemPress = (item, index) => {
-        const newData = dataState.slice(index);
+        const newData = data.slice(index);
         if (onStart) {
             onStart(item)
         }
@@ -60,24 +60,25 @@ export const Story = (props: Props) => {
         setIsModalOpen(true);
     };
 
-    useEffect(() => {
-        handleSeen();
-    }, [currentPage]);
+    // We don't need to handle seen stories for now
+    // useEffect(() => {
+    //     handleSeen();
+    // }, [currentPage]);
 
-    const handleSeen = () => {
-        const seen = selectedData[currentPage];
-        const seenIndex = dataState.indexOf(seen);
-        if (seenIndex > 0) {
-            if (!dataState[seenIndex]?.seen) {
-                let tempData = dataState;
-                dataState[seenIndex] = {
-                    ...dataState[seenIndex],
-                    seen: true
-                }
-                setDataState(tempData);
-            }
-        }
-    }
+    // const handleSeen = () => {
+    //     const seen = selectedData[currentPage];
+    //     const seenIndex = dataState.indexOf(seen);
+    //     if (seenIndex > 0) {
+    //         if (!dataState[seenIndex]?.seen) {
+    //             let tempData = dataState;
+    //             dataState[seenIndex] = {
+    //                 ...dataState[seenIndex],
+    //                 seen: true
+    //             }
+    //             setDataState(tempData);
+    //         }
+    //     }
+    // }
 
     function onStoryFinish(state) {
         if (!isNullOrWhitespace(state)) {
@@ -159,7 +160,7 @@ export const Story = (props: Props) => {
             <View style={style}>
                 <StoryCircleListView
                     handleStoryItemPress={_handleStoryItemPress}
-                    data={dataState}
+                    data={data}
                     avatarSize={avatarSize}
                     unPressedBorderColor={unPressedBorderColor}
                     pressedBorderColor={pressedBorderColor}

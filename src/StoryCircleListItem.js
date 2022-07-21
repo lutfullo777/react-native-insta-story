@@ -1,6 +1,6 @@
-import React, {useState, useEffect} from "react";
-import {View, Image, TouchableOpacity, Text, StyleSheet, Platform} from "react-native";
-import {usePrevious} from "./helpers/StateHelpers";
+import React, { useState, useEffect } from "react";
+import { View, Image, TouchableOpacity, Text, StyleSheet, Platform } from "react-native";
+import { usePrevious } from "./helpers/StateHelpers";
 
 import DEFAULT_AVATAR from "./assets/images/no_avatar.png";
 
@@ -27,7 +27,7 @@ const StoryCircleListItem = (props) => {
     }, [props?.item?.seen]);
 
     const _handleItemPress = item => {
-        const {handleStoryItemPress} = props;
+        const { handleStoryItemPress } = props;
 
         if (handleStoryItemPress) handleStoryItemPress(item);
 
@@ -37,7 +37,7 @@ const StoryCircleListItem = (props) => {
     const size = avatarSize ?? 60;
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, props.index === 0 && { marginLeft: 24 }, props.index === props.listLength && { marginRight: 24 }]}>
             <TouchableOpacity
                 onPress={() => _handleItemPress(item)}
                 style={[
@@ -65,7 +65,7 @@ const StoryCircleListItem = (props) => {
                         width: size,
                         borderRadius: 100,
                     }}
-                    source={{uri: item.user_image}}
+                    source={{ uri: item.user_image }}
                     defaultSource={Platform.OS === 'ios' ? DEFAULT_AVATAR : null}
                 />
             </TouchableOpacity>
@@ -87,7 +87,7 @@ export default StoryCircleListItem;
 const styles = StyleSheet.create({
     container: {
         marginVertical: 5,
-        marginRight: 10
+        marginHorizontal: 6
     },
     avatarWrapper: {
         borderWidth: 2,

@@ -20,16 +20,17 @@ const StoryCircleListView = (props) => {
                 keyExtractor={(item, index) => index.toString()}
                 data={data}
                 horizontal
-                style={{paddingLeft: 12}}
                 showsVerticalScrollIndicator={false}
                 showsHorizontalScrollIndicator={false}
-                ListFooterComponent={<View style={{flex: 1, width: 8}}/>}
-                renderItem={({item, index}) => (
+                ListFooterComponent={<View style={{ flex: 1, width: 8 }} />}
+                renderItem={({ item, index }) => (
                     <StoryCircleListItem
                         avatarSize={avatarSize}
                         handleStoryItemPress={() =>
                             handleStoryItemPress && handleStoryItemPress(item, index)
                         }
+                        index={index}
+                        listLength={data.length}
                         unPressedBorderColor={unPressedBorderColor}
                         pressedBorderColor={pressedBorderColor}
                         item={item}
