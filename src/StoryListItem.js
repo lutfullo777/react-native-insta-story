@@ -31,11 +31,28 @@ type Props = {
     stories: IUserStoryItem[]
 };
 
+function timeSince(date) {
+    console.log(date)
+    var seconds = Math.floor((new Date() - new Date(date)) / 1000);
+
+    var interval = seconds / 31536000;
+
+    interval = seconds / 3600;
+    if (interval > 1) {
+        return Math.floor(interval) + " h";
+    }
+    interval = seconds / 60;
+    if (interval > 1) {
+        return Math.floor(interval) + " m";
+    }
+    return Math.floor(seconds) + " s";
+}
+
 export const StoryListItem = (props: Props) => {
     const stories = props.stories;
 
     const [load, setLoad] = useState(true);
-    const [pressed, setPressed] = useState(false);
+    const [paused, setPaused] = useState(false);
     const [content, setContent] = useState(
         stories.map((x) => {
             var type = "image";
@@ -46,6 +63,7 @@ export const StoryListItem = (props: Props) => {
 
             return {
                 type: type,
+                date: x.date,
                 media: type == "video" ? x.story_video : x.story_image,
                 onPress: x.onPress,
                 swipeText: x.swipeText,
@@ -57,31 +75,21 @@ export const StoryListItem = (props: Props) => {
     var baseDuration = props.duration;
 
     const progress = useRef(new Animated.Value(0)).current;
-
-    const prevCurrentPage = usePrevious(props.currentPage);
+    const playerRef = useRef(null);
 
     useEffect(() => {
-        let isPrevious = prevCurrentPage > props.currentPage;
-        if (isPrevious) {
-            setCurrent(content.length - 1);
-        } else {
+        if (props.currentPage === props.index) {
             setCurrent(0);
+    
+            let data = [...content];
+            data.map((x, i) => {
+                x.finish = 0
+            })
+            setContent(data)
+            start()
+        } else {
+            setPaused(true)
         }
-
-        let data = [...content];
-        data.map((x, i) => {
-            if (isPrevious) {
-                x.finish = 1;
-                if (i == content.length - 1) {
-                    x.finish = 0;
-                }
-            } else {
-                x.finish = 0;
-            }
-
-        })
-        setContent(data)
-        start();
     }, [props.currentPage]);
 
     const prevCurrent = usePrevious(current);
@@ -101,7 +109,9 @@ export const StoryListItem = (props: Props) => {
         // console.log("SENT START");
 
         setLoad(false);
+        setPaused(false);
         progress.setValue(0);
+        playerRef?.current?.seek(0)
         startAnimation(dr);
     }
 
@@ -114,6 +124,7 @@ export const StoryListItem = (props: Props) => {
             useNativeDriver: false
         }).start(({ finished }) => {
             if (finished) {
+                setPaused(true);
                 next();
             }
         });
@@ -200,10 +211,11 @@ export const StoryListItem = (props: Props) => {
                     {
                         content[current].type == "video" ? (
                             <Video
+                                ref={playerRef}
                                 source={{ uri: content[current].media }}
                                 rate={1.0}
                                 volume={1.0}
-                                paused={pressed}
+                                paused={paused}
                                 resizeMode="contain"
                                 playInBackground={false}
                                 onLoadStart={() => {
@@ -257,6 +269,7 @@ export const StoryListItem = (props: Props) => {
                             source={{ uri: props.profileImage }}
                         />
                         <Text style={styles.avatarText}>{props.profileName}</Text>
+                        <Text style={styles.date}>{timeSince(content[current].date)}</Text>
                     </View>
                     <TouchableOpacity onPress={() => {
                         if (props.onClosePress) {
@@ -277,13 +290,13 @@ export const StoryListItem = (props: Props) => {
                 <View style={styles.pressContainer}>
                     <TouchableWithoutFeedback
                         onPressIn={() => progress.stopAnimation()}
-                        onLongPress={() => setPressed(true)}
+                        onLongPress={() => setPaused(true)}
                         onPressOut={() => {
-                            setPressed(false);
+                            setPaused(false);
                             startAnimation(baseDuration);
                         }}
                         onPress={() => {
-                            if (!pressed && !load) {
+                            if (!paused && !load) {
                                 previous()
                             }
                         }}
@@ -291,13 +304,13 @@ export const StoryListItem = (props: Props) => {
                         <View style={{ flex: 1 }} />
                     </TouchableWithoutFeedback>
                     <TouchableWithoutFeedback onPressIn={() => progress.stopAnimation()}
-                        onLongPress={() => setPressed(true)}
+                        onLongPress={() => setPaused(true)}
                         onPressOut={() => {
-                            setPressed(false);
+                            setPaused(false);
                             startAnimation(baseDuration);
                         }}
                         onPress={() => {
-                            if (!pressed && !load) {
+                            if (!paused && !load) {
                                 next()
                             }
                         }}>
@@ -383,6 +396,10 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: 'white',
         paddingLeft: 10,
+    },
+    date: {
+        color: '#F6F6F6',
+        paddingLeft: 8,
     },
     closeIconContainer: {
         alignItems: 'center',

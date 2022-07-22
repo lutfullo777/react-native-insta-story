@@ -1,13 +1,13 @@
-import React, {Fragment, useRef, useState, useEffect} from "react";
-import {Dimensions, View, Platform} from "react-native";
+import React, { Fragment, useRef, useState, useEffect } from "react";
+import { Dimensions, View, Platform } from "react-native";
 import Modal from "react-native-modalbox";
 import StoryListItem from "./StoryListItem";
 import StoryCircleListView from "./StoryCircleListView";
-import {isNullOrWhitespace} from "./helpers/ValidationHelpers";
-import type {IUserStory} from "./interfaces/IUserStory";
+import { isNullOrWhitespace } from "./helpers/ValidationHelpers";
+import type { IUserStory } from "./interfaces/IUserStory";
 import AndroidCubeEffect from "./components/AndroidCubeEffect";
 import CubeNavigationHorizontal from "./components/CubeNavigationHorizontal";
-import {TextStyle} from "react-native";
+import { TextStyle } from "react-native";
 
 type Props = {
     data: IUserStory[],
@@ -50,13 +50,12 @@ export const Story = (props: Props) => {
 
     // Component Functions
     const _handleStoryItemPress = (item, index) => {
-        const newData = data.slice(index);
         if (onStart) {
             onStart(item)
         }
 
-        setCurrentPage(0);
-        setSelectedData(newData);
+        setCurrentPage(index);
+        setSelectedData(data);
         setIsModalOpen(true);
     };
 
@@ -108,23 +107,25 @@ export const Story = (props: Props) => {
     }
 
     const renderStoryList = () => selectedData.map((x, i) => {
-        return (<StoryListItem duration={duration * 1000}
-                               key={i}
-                               profileName={x.user_name}
-                               profileImage={x.user_image}
-                               stories={x.stories}
-                               currentPage={currentPage}
-                               onFinish={onStoryFinish}
-                               swipeText={swipeText}
-                               customSwipeUpComponent={customSwipeUpComponent}
-                               customCloseComponent={customCloseComponent}
-                               onClosePress={() => {
-                                   setIsModalOpen(false);
-                                   if (onClose) {
-                                       onClose(x);
-                                   }
-                               }}
-                               index={i}/>)
+        return (<StoryListItem
+            duration={duration * 1000}
+            key={i}
+            index={i}
+            profileName={x.user_name}
+            profileImage={x.user_image}
+            stories={x.stories}
+            currentPage={currentPage}
+            onFinish={onStoryFinish}
+            swipeText={swipeText}
+            customSwipeUpComponent={customSwipeUpComponent}
+            customCloseComponent={customCloseComponent}
+            onClosePress={() => {
+                setIsModalOpen(false);
+                if (onClose) {
+                    onClose(x);
+                }
+            }}
+            index={i} />)
     })
 
     const renderCube = () => {
@@ -132,6 +133,7 @@ export const Story = (props: Props) => {
             return (
                 <CubeNavigationHorizontal
                     ref={cube}
+                    currentPage={currentPage}
                     callBackAfterSwipe={(x) => {
                         if (x != currentPage) {
                             setCurrentPage(parseInt(x));
@@ -144,6 +146,7 @@ export const Story = (props: Props) => {
         } else {
             return (<AndroidCubeEffect
                 ref={cube}
+                currentPage={currentPage}
                 callBackAfterSwipe={(x) => {
                     if (x != currentPage) {
                         setCurrentPage(parseInt(x));

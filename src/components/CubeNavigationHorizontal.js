@@ -91,6 +91,10 @@ export default class CubeNavigationHorizontal extends React.Component {
                 onDoneSwiping(gestureState);
             },
         });
+
+        setTimeout(() => {
+            this.scrollTo(this.props.currentPage, false)
+        }, 0);
     }
 
     componentWillReceiveProps(props) {

@@ -99,6 +99,10 @@ export default class AndroidCubeEffect extends React.Component {
                 }
             }, 500);
         }
+
+        setTimeout(() => {
+            this.scrollTo(this.props.currentPage, false)
+        }, 0);
     }
 
     componentWillReceiveProps(props) {
