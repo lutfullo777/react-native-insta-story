@@ -32,7 +32,6 @@ type Props = {
 };
 
 function timeSince(date) {
-    console.log(date)
     var seconds = Math.floor((new Date() - new Date(date)) / 1000);
 
     var interval = seconds / 31536000;
@@ -51,8 +50,9 @@ function timeSince(date) {
 export const StoryListItem = (props: Props) => {
     const stories = props.stories;
 
-    const [load, setLoad] = useState(true);
+    const [load, setLoad] = useState(false);
     const [paused, setPaused] = useState(false);
+    const [duration, setDuration] = useState(props.duration);
     const [content, setContent] = useState(
         stories.map((x) => {
             var type = "image";
@@ -63,7 +63,7 @@ export const StoryListItem = (props: Props) => {
 
             return {
                 type: type,
-                date: x.date,
+                date: timeSince(x.date),
                 media: type == "video" ? x.story_video : x.story_image,
                 onPress: x.onPress,
                 swipeText: x.swipeText,
@@ -105,14 +105,20 @@ export const StoryListItem = (props: Props) => {
 
     }, [current]);
 
-    function start(dr = props.duration) {
+    useEffect(() => {
+        if (load && props.currentPage === props.index) {
+            start()
+        }
+    }, [load, props.currentPage])
+
+    function start() {
         // console.log("SENT START");
 
         setLoad(false);
         setPaused(false);
         progress.setValue(0);
         playerRef?.current?.seek(0)
-        startAnimation(dr);
+        startAnimation(duration);
     }
 
     function startAnimation(dr) {
@@ -223,6 +229,7 @@ export const StoryListItem = (props: Props) => {
                                     progress.setValue(0);
                                 }}
                                 onLoad={(vidData) => {
+                                    setLoad(false);
                                     if (vidData.duration !== undefined) {
                                         var duration = Math.round(vidData["duration"]) * 1000;
                                         if (duration > props.duration) {
@@ -230,9 +237,7 @@ export const StoryListItem = (props: Props) => {
                                         }
 
                                         baseDuration = duration;
-                                        start(duration);
-                                    } else {
-                                        start(props.duration);
+                                        setDuration(duration);
                                     }
                                 }}
 
@@ -240,7 +245,7 @@ export const StoryListItem = (props: Props) => {
                                     width: width,
                                     height: height,
                                 }}
-                            />) : (<Image onLoadEnd={() => start(props.duration)}
+                            />) : (<Image onLoadEnd={() => start()}
                                 source={{ uri: content[current].media }}
                                 style={styles.image}
                             />)
@@ -269,7 +274,7 @@ export const StoryListItem = (props: Props) => {
                             source={{ uri: props.profileImage }}
                         />
                         <Text style={styles.avatarText}>{props.profileName}</Text>
-                        <Text style={styles.date}>{timeSince(content[current].date)}</Text>
+                        <Text style={styles.date}>{content[current].date}</Text>
                     </View>
                     <TouchableOpacity onPress={() => {
                         if (props.onClosePress) {
