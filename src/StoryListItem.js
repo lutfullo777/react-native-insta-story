@@ -72,7 +72,6 @@ export const StoryListItem = (props: Props) => {
         }));
 
     const [current, setCurrent] = useState(0);
-    var baseDuration = props.duration;
 
     const progress = useRef(new Animated.Value(0)).current;
     const playerRef = useRef(null);
@@ -83,12 +82,12 @@ export const StoryListItem = (props: Props) => {
     
             let data = [...content];
             data.map((x, i) => {
-                x.finish = 0
+                x.finish = 0;
             })
-            setContent(data)
-            start()
+            setContent(data);
+            start();
         } else {
-            setPaused(true)
+            setPaused(true);
         }
     }, [props.currentPage]);
 
@@ -106,24 +105,20 @@ export const StoryListItem = (props: Props) => {
     }, [current]);
 
     useEffect(() => {
-        if (load && props.currentPage === props.index) {
+        if (!load && props.currentPage === props.index) {
             start()
         }
     }, [load, props.currentPage])
 
-    function start() {
-        // console.log("SENT START");
-
+    function start(d = duration) {
         setLoad(false);
         setPaused(false);
         progress.setValue(0);
-        playerRef?.current?.seek(0)
-        startAnimation(duration);
+        playerRef?.current?.seek(0);
+        startAnimation(d);
     }
 
     function startAnimation(dr) {
-        // console.log("ANIM", dr);
-
         Animated.timing(progress, {
             toValue: 1,
             duration: dr,
@@ -231,13 +226,8 @@ export const StoryListItem = (props: Props) => {
                                 onLoad={(vidData) => {
                                     setLoad(false);
                                     if (vidData.duration !== undefined) {
-                                        var duration = Math.round(vidData["duration"]) * 1000;
-                                        if (duration > props.duration) {
-                                            duration = props.duration;
-                                        }
-
-                                        baseDuration = duration;
-                                        setDuration(duration);
+                                        const d = Math.round(vidData.duration) * 1000;
+                                        setDuration(d);
                                     }
                                 }}
 
@@ -245,7 +235,10 @@ export const StoryListItem = (props: Props) => {
                                     width: width,
                                     height: height,
                                 }}
-                            />) : (<Image onLoadEnd={() => start()}
+                            />) : (<Image onLoadEnd={() => {
+                                setDuration(props.duration);
+                                start();
+                            }}
                                 source={{ uri: content[current].media }}
                                 style={styles.image}
                             />)
@@ -298,7 +291,7 @@ export const StoryListItem = (props: Props) => {
                         onLongPress={() => setPaused(true)}
                         onPressOut={() => {
                             setPaused(false);
-                            startAnimation(baseDuration);
+                            startAnimation(duration);
                         }}
                         onPress={() => {
                             if (!paused && !load) {
@@ -312,7 +305,7 @@ export const StoryListItem = (props: Props) => {
                         onLongPress={() => setPaused(true)}
                         onPressOut={() => {
                             setPaused(false);
-                            startAnimation(baseDuration);
+                            startAnimation(duration);
                         }}
                         onPress={() => {
                             if (!paused && !load) {
